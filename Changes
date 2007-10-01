@@ -1,0 +1,10 @@
+Revision history for Perl module Data::Remember
+
+0.01 Mon Oct 1 16:00:55 2007
+    * Initial release.
+    * Data::Remember added as main interface module featuring remember(),
+      recall(), forget(), and brain()
+    * Data::Remember::Memory brain driver
+    * Data::Remember::DBM brain driver using DBM::Deep
+    * Data::Remember::YAML brain driver using YAML::Syck
+    * Data::Remember::Hybrid brain driver for mixing drivers
