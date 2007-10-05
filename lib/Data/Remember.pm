@@ -3,7 +3,7 @@ use warnings;
 
 package Data::Remember;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Carp;
 use UNIVERSAL::require;

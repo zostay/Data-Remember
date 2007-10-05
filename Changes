@@ -1,5 +1,9 @@
 Revision history for Perl module Data::Remember
 
+0.02 Fri Oct 5 15:17:32 2007
+    * Updating t/brains.t to precreate t/test.yml to prevent test failurs on
+      some versions of YAML::Syck.
+
 0.01 Mon Oct 1 16:00:55 2007
     * Initial release.
     * Data::Remember added as main interface module featuring remember(),

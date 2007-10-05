@@ -5,6 +5,10 @@ use warnings;
 use Test::More tests => 13 * 4;
 use Data::Remember 'Memory';
 
+use YAML::Syck;
+
+YAML::Syck::DumpFile('t/test.yml', {});
+
 our @brains = (
     [ 'Memory' ],
     [ DBM => file => 't/test.db' ],
