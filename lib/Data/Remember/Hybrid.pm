@@ -149,20 +149,20 @@ sub _best_brain {
     my $self = shift;
     my $que  = shift;
 
-    my @sub_que = @$que;
-    pop @sub_que;
-    my $object  = $self->{mounts};
+    my @sub_que  = @$que;
+    my $last_que = pop @sub_que;
+    my $object   = $self->{mounts};
 
     my $best_brain = $self->{root};
     my $best_que   = [ @$que ];
 
     while (my $que_entry = shift @sub_que) {
         if (defined $object->{$que_entry}) {
-            $object = $object->{que_entry};
+            $object = $object->{$que_entry};
 
             if (defined $object->{__BRAIN}) {
                 $best_brain = $object->{__BRAIN};
-                $best_que   = [ @sub_que ];
+                $best_que   = [ @sub_que, $last_que ];
             }
         }
         else {
