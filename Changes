@@ -5,6 +5,8 @@ Revision history for Perl module Data::Remember
     * Added a test for dependencies.
     * Added a test for POD errors.
     * Added a test for POD coverage problems.
+    * Added the POE brain.
+    * Fixed the dependencies in Makefile.PL.
 
 0.02 Fri Oct 5 15:17:32 2007
     * Updating t/brains.t to precreate t/test.yml to prevent test failurs on
