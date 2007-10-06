@@ -1,5 +1,11 @@
 Revision history for Perl module Data::Remember
 
+0.03 Sat Oct 6 10:30:02 2007
+    * Refactored tests into a much nicer (and less noisy) setup.
+    * Added a test for dependencies.
+    * Added a test for POD errors.
+    * Added a test for POD coverage problems.
+
 0.02 Fri Oct 5 15:17:32 2007
     * Updating t/brains.t to precreate t/test.yml to prevent test failurs on
       some versions of YAML::Syck.
