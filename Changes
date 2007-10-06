@@ -1,5 +1,13 @@
 Revision history for Perl module Data::Remember
 
+0.04 Sat Oct 6 17:09:52 2007
+    * Added t/load-test.yml as a test for YAML loading.
+    * Added t/20-yaml-load.t in an attempt to reveal a bug I'm seeing in an
+      application I'm writing elsewhere, but all tests passed.
+    * Added t/20-hybrid-yaml-load.t and found the bug I was looking for.
+    * Fixed a bug in Data::Remember::Hybrid where _best_brain() was not, in
+      fact, returning the best brain, ever.
+
 0.03 Sat Oct 6 10:30:02 2007
     * Refactored tests into a much nicer (and less noisy) setup.
     * Added a test for dependencies.
