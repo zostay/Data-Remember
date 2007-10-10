@@ -1,7 +1,10 @@
 Revision history for Perl module Data::Remember
 
-0.05 
+0.05 Wed Oct 10 0:23:49 2007
     * Added brain_for() to Data::Remember::Hybrid.
+    * Updated t/20-poe.t to include a test for forget().
+    * Fixed Data::Remember::POE::forget() which was incorrectly calling the
+      heap brain's recall() instead of forget().
 
 0.04 Sat Oct 6 17:09:52 2007
     * Added t/load-test.yml as a test for YAML loading.
