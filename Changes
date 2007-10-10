@@ -1,5 +1,8 @@
 Revision history for Perl module Data::Remember
 
+0.05 
+    * Added brain_for() to Data::Remember::Hybrid.
+
 0.04 Sat Oct 6 17:09:52 2007
     * Added t/load-test.yml as a test for YAML loading.
     * Added t/20-yaml-load.t in an attempt to reveal a bug I'm seeing in an

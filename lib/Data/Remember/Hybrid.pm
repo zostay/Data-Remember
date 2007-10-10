@@ -139,6 +139,20 @@ sub unregister_brain {
     return scalar defined delete $object->{__BRAIN};
 }
 
+=head2 brain_for QUE
+
+Returns a sub-brain that would serve the given C<QUE>.
+
+=cut
+
+sub brain_for {
+    my $self = shift;
+    my $que  = shift;
+
+    my ($best_brain) = $self->_best_brain($que);
+    return scalar $best_brain;
+}
+
 =head2 remember QUE, FACT
 
 Stores the given FACT in the appropriate brain according to QUE.
