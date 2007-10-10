@@ -130,7 +130,7 @@ sub forget {
     my $self = shift;
     my $que  = shift;
 
-    return POE::Kernel->get_active_session->get_heap->recall($que);
+    return POE::Kernel->get_active_session->get_heap->forget($que);
 }
 
 =head2 brain
