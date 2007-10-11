@@ -76,7 +76,7 @@ sub dump {
     my $self = shift;
     my $file = shift || $self->{file};
 
-    YAML::Syck::DumpFile($self->{brain});
+    YAML::Syck::DumpFile($file, $self->{brain});
 }
 
 =head1 SEE ALSO
