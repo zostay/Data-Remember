@@ -28,7 +28,9 @@ t/06-hybrid.t
 t/20-dbm.t
 t/20-hybrid-yaml-load.t
 t/20-poe.t
+t/20-yaml-dump.t
 t/20-yaml-load.t
 t/20-yaml.t
 t/load-test.yml
+t/load-test2.yml
 t/test-brain.pl

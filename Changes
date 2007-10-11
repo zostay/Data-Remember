@@ -3,6 +3,10 @@ Revision history for Perl module Data::Remember
 0.06
     * Made brain_for() of Data::Remember::Hybrid a little more reliable.
     * Added t/06-hybrid-brain_for.t to establish brain_for()'s robustness.
+    * Added t/20-yaml-dump.t to reveal a bug in the YAML brain's dump() method.
+    * Improved t/20-yaml-load.t to test the YAML brain's load() method.
+    * Fixed a bug in the YAML brain's dump() method that prevented it from
+      dumping the brain back out to file properly.
 
 0.05 Wed Oct 10 0:23:49 2007
     * Added brain_for() to Data::Remember::Hybrid.
