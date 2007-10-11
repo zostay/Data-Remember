@@ -1,5 +1,9 @@
 Revision history for Perl module Data::Remember
 
+0.06
+    * Made brain_for() of Data::Remember::Hybrid a little more reliable.
+    * Added t/06-hybrid-brain_for.t to establish brain_for()'s robustness.
+
 0.05 Wed Oct 10 0:23:49 2007
     * Added brain_for() to Data::Remember::Hybrid.
     * Updated t/20-poe.t to include a test for forget().

@@ -149,6 +149,9 @@ sub brain_for {
     my $self = shift;
     my $que  = shift;
 
+    $que = Data::Remember::_process_que($que);
+    push @$que, 'X';
+
     my ($best_brain) = $self->_best_brain($que);
     return scalar $best_brain;
 }
