@@ -23,6 +23,7 @@ t/00-dependencies.t
 t/02-pod-coverage.t
 t/02-pod.t
 t/05-memory.t
+t/06-hybrid-brain_for.t
 t/06-hybrid.t
 t/20-dbm.t
 t/20-hybrid-yaml-load.t
