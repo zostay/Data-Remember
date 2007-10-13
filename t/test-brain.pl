@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-plan tests => 18;
+plan tests => 44;
 
 can_ok('main', 'remember');
 can_ok('main', 'recall');
@@ -50,3 +50,85 @@ remember [ foo => 1, bar => 2, baz => 3 ], {
 is(recall [ foo => 1, bar => 2, baz => 3, 'fantastic' ], 10, 'fantastic => 10');
 is(recall [ foo => 1, bar => 2, baz => 3, 'supreme' ], 9, 'supreme => 9');
 is(recall [ foo => 1, bar => 2, baz => 3, 'excellent' ], 8, 'excellent => 8');
+
+# Forget when hash using $_[0] and $_[1]
+{
+    remember flarg => { dood => 20, daad => 21, diid => 22 };
+
+    is(recall [ flarg => 'dood' ], 20, 'flarg dood is 20');
+    is(recall [ flarg => 'daad' ], 21, 'flarg daad is 21');
+    is(recall [ flarg => 'diid' ], 22, 'flarg diid is 22');
+
+    forget_when { $_[0] eq 'daad' or $_[1] eq 22 } 'flarg';
+
+    is(recall [ flarg => 'dood' ], 20, 'flarg dood is 20');
+    is(recall [ flarg => 'daad' ], undef, 'flarg daad is undef');
+    is(recall [ flarg => 'diid' ], undef, 'flarg diid is undef');
+}
+
+# Forget when hash using $_
+{
+    remember flarg => { dood => 23, daad => 24, diid => 25 };
+
+    is(recall [ flarg => 'dood' ], 23, 'flarg dood is 23');
+    is(recall [ flarg => 'daad' ], 24, 'flarg daad is 24');
+    is(recall [ flarg => 'diid' ], 25, 'flarg diid is 25');
+
+    forget_when { $_ eq 23 } 'flarg';
+
+    is(recall [ flarg => 'dood' ], undef, 'flarg dood is undef');
+    is(recall [ flarg => 'daad' ], 24, 'flarg daad is 24');
+    is(recall [ flarg => 'diid' ], 25, 'flarg diid is 24');
+}
+
+# Forget when array using $_[0] and $_[1]
+{
+    remember splack => [ 11, 12, 13 ];
+
+    is_deeply([@{recall('splack')}], [ 11, 12, 13 ], 'splack is [ 11,12,13 ]');
+
+    forget_when { $_[0] == 2 or $_[1] == 11 } 'splack';
+
+    is_deeply([@{recall('splack')}], [ 12 ], 'splack is [ 12 ]');
+}
+
+# Forget when array using $_
+{
+    remember splack => [ 14, 15, 16 ];
+
+    is_deeply([@{recall('splack')}], [ 14, 15, 16 ], 'splack is [ 14,15,16 ]');
+
+    forget_when { $_ == 15 } 'splack';
+
+    is_deeply([@{recall('splack')}], [ 14, 16 ], 'splack is [ 14,16 ]');
+}
+
+# Forget when scalar using $_[1]
+{
+    remember blah => 7;
+    remember bloo => 8;
+
+    is(recall 'blah', 7, 'recalled blah is 7');
+    is(recall 'bloo', 8, 'recalled bloo is 8');
+
+    forget_when { $_ == 8 } 'blah';
+    forget_when { $_ == 8 } 'bloo';
+
+    is(recall 'blah', 7, 'recalled blah is 7');
+    is(recall 'bloo', undef, 'recalled bloo is undef');
+}
+
+# Forget when scalar using $_
+{
+    remember blah => 9;
+    remember bloo => 10;
+
+    is(recall 'blah', 9, 'recalled blah is 9');
+    is(recall 'bloo', 10, 'recalled bloo is 10');
+
+    forget_when { is($_[0], undef); $_[1] == 9 } 'blah';
+    forget_when { is($_[0], undef); $_[1] == 9 } 'bloo';
+
+    is(recall 'blah', undef, 'recalled blah is undef');
+    is(recall 'bloo', 10, 'recalled bloo is 10');
+}

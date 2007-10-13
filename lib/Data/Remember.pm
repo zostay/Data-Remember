@@ -3,7 +3,7 @@ use warnings;
 
 package Data::Remember;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use Carp;
 use Scalar::Util qw/ reftype /;
@@ -32,6 +32,12 @@ Data::Remember - remember complex information without giving yourself a headache
   my $cook    = recall [ 'cook' ];   # retrieves [ qw/ goose duck turkey / ]
 
   forget 'foo';
+
+  my $foo_again = recall 'foo'; # $foo_again is undef
+
+  forget_when { /^duck$/ } [ 'cook' ]; 
+
+  my $cook_again = recall 'cook'; # $cook_again is [ qw/ goose turkey / ]
 
 =head1 DESCRIPTION
 
@@ -75,7 +81,7 @@ By using that command, the L<Data::Remember::DBM> "brain" is used instead of the
 
 =head1 SUBROUTINES
 
-By using this module you will automatically import (I know, how rude) four subroutines into the calling package: L</remember>, L</remember_these>, L</recall>, L</recall_and_update>, L</forget>, and L</brain>.
+By using this module you will automatically import (I know, how rude) four subroutines into the calling package: L</remember>, L</remember_these>, L</recall>, L</recall_and_update>, L</forget>, L<forget_when>, and L</brain>.
 
 =head2 QUE
 
@@ -204,6 +210,7 @@ sub _import_brain {
     *{"$package\::recall"}            = recall($brain);
     *{"$package\::recall_and_update"} = recall_and_update($brain);
     *{"$package\::forget"}            = forget($brain);
+    *{"$package\::forget_when"}       = forget_when($brain);
     *{"$package\::brain"}             = brain($brain);
 }
 
@@ -352,6 +359,53 @@ sub forget {
         my $clean_que = _process_que($que);
 
         $brain->forget($clean_que);
+
+        return;
+    };
+}
+
+=head2 forget_when { ... } $que
+
+Tells the brain to forget a previously remembered fact stored at C<$que>. The behavior of C<forget_when> changes depending on the nature of the fact stored at C<$que>.
+
+If C<$que> is a hash, the code reference given as the first argument will be called for each key/value pair and passed the key in C<$_[0]> and the value in C<$_[1]>. When the code reference returns true, that pair will be forgotten.
+
+If C<$que> is an array, the code reference given as the first argument will be called for each index/value pair and passed the index in C<$_[0]> and the value in C<$_[1]>, the value will be passed in C<$_> as well. If the code reference returns a true value, that value will be forgotten.
+
+For any other type of fact stored in the brain, the code reference will be called with C<$_[0]> set to C<undef> and C<$_[1]> and C<$_> set to the value of the fact. The whole que will be forgotten if the code reference returns true.
+
+=cut
+
+sub forget_when {
+    my $brain = shift;
+
+    sub (&$) {
+        my $code = shift;
+        my $que = shift;
+
+        my $clean_que = _process_que($que);
+
+        my $fact = $brain->recall($clean_que);
+
+        if (ref $fact and reftype $fact eq 'HASH') {
+            for my $key (keys %$fact) {
+                my $value = $fact->{ $key };
+                local $_ = $value;
+                delete $fact->{ $key } if $code->($key, $value);
+            }
+        }
+
+        elsif (ref $fact and reftype $fact eq 'ARRAY') {
+            my $index = 0;
+            my @new_fact
+                = grep { my $value = $_; not $code->($index++, $value) } @$fact;
+            $brain->remember($clean_que, \@new_fact);
+        }
+
+        else {
+            local $_ = $fact;
+            $brain->forget($clean_que) if $code->(undef, $fact);
+        }
 
         return;
     };
