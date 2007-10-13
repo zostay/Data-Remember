@@ -3,9 +3,10 @@ use warnings;
 
 package Data::Remember;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use Carp;
+use Scalar::Util qw/ reftype /;
 use UNIVERSAL::require;
 
 =head1 NAME
@@ -20,9 +21,15 @@ Data::Remember - remember complex information without giving yourself a headache
   remember [ bar => 7 ], [ 'spaz', 'w00t', 'doof', 'flibble' ];
   remember [ 'xyz', 'abc', 'mno' ] => { some => 'thing' };
 
+  remember_these cook => 'goose';
+  remember_these cook => 'duck';
+  remember_these cook => 'turkey';
+
   my $foo     = recall 'foo';        # retrieve a simple key
   my $wibbler = recall [ bar => 7 ]; # retrieve a complex key
   my $alpha   = recall 'xyz';        # retrieve a subkey
+
+  my $cook    = recall [ 'cook' ];   # retrieves [ qw/ goose duck turkey / ]
 
   forget 'foo';
 
@@ -68,7 +75,7 @@ By using that command, the L<Data::Remember::DBM> "brain" is used instead of the
 
 =head1 SUBROUTINES
 
-By using this module you will automatically import (I know, how rude) four subroutines into the calling package: L</remember>, L</recall>, L</forget>, and L</brain>.
+By using this module you will automatically import (I know, how rude) four subroutines into the calling package: L</remember>, L</remember_these>, L</recall>, L</recall_and_update>, L</forget>, and L</brain>.
 
 =head2 QUE
 
@@ -192,10 +199,12 @@ sub _import_brain {
 
     no strict 'refs';
 
-    *{"$package\::remember"} = remember($brain);
-    *{"$package\::recall"}   = recall($brain);
-    *{"$package\::forget"}   = forget($brain);
-    *{"$package\::brain"}    = brain($brain);
+    *{"$package\::remember"}          = remember($brain);
+    *{"$package\::remember_these"}    = remember_these($brain);
+    *{"$package\::recall"}            = recall($brain);
+    *{"$package\::recall_and_update"} = recall_and_update($brain);
+    *{"$package\::forget"}            = forget($brain);
+    *{"$package\::brain"}             = brain($brain);
 }
 
 sub _process_que {
@@ -240,6 +249,41 @@ sub remember {
     };
 }
 
+=head2 remember_these $que, $fact
+
+Stores the given C<$fact> at the give C<$que>, but stores it by pushing it onto the back of an array stored at C<$que>. This allows you to remember a list of things at a given C<$que>:
+
+  remember_these stooges => 'Larry';
+  remember_these stooges => 'Curly';
+  remember_these stooges => 'Moe';
+
+  my $stooges = recall 'stooges'; # returns the array [ qw( Larry Curly Moe ) ]
+
+=cut
+
+sub remember_these {
+    my $brain = shift;
+
+    sub ($$) {
+        my $que  = shift;
+        my $fact = shift;
+
+        my $clean_que = _process_que($que);;
+
+        my $fact_list = $brain->recall($clean_que);
+
+        if (defined reftype $fact_list and reftype $fact_list eq 'ARRAY') {
+            push @$fact_list, $fact;
+        }
+
+        else {
+            $brain->remember($clean_que, [ $fact ]);
+        }
+
+        return;
+    };
+}
+
 =head2 recall $que
 
 Recalls a previously stored fact located at the memory location described by C<$que>. See L</QUE> for an in depth discussion of that argument.
@@ -257,6 +301,39 @@ sub recall {
         my $clean_que = _process_que($que);
 
         return scalar $brain->recall($clean_que);
+    };
+}
+
+=head2 recall_and_update { ... } $que
+
+This helper allows you to simultaneously recall and update an entry. For example, if you want to increment the entry while recalling it:
+
+  my $count = recall_and_update { $_++ } 'count';
+
+any modification to C<$_> will be stored back into the given que. The result of the code run is returned by the function. For example, if you wanted to replace every "G" with "Q" in the brain, but wanted to use the original unmodified string, you could:
+
+  my $with_g = recall_and_update { my $copy = $_; s/G/Q/g; $copy } 'some_que';
+
+=cut
+
+sub recall_and_update {
+    my $brain = shift;
+
+    sub (&$) {
+        my $code = shift;
+        my $que  = shift;
+
+        my $clean_que = _process_que($que);
+
+        # Recall and modify $_
+        local $_ = $brain->recall($clean_que);
+        my $result = $code->();
+
+        # Store that value back
+        $brain->remember($clean_que, $_);
+
+        # Return the result
+        return $result;
     };
 }
 
