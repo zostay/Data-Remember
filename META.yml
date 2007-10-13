@@ -9,8 +9,8 @@ no_index:
     - inc
     - t
 requires: 
-  DBM::Deep: 1.0003
+  DBM::Deep: 0
   POE: 0
   UNIVERSAL::require: 0
   YAML::Syck: 0
-version: 0.05
+version: 0.06
