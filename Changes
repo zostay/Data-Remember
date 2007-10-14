@@ -1,10 +1,13 @@
 Revision history for Perl module Data::Remember
 
-0.07
+0.07 Sun Oct 14 0:38:17 2007
     * Added the forget_when() function for forgetting parts of a fact based upon
     * a predicate.
     * Expanded the tests in t/test-brain.pl to make sure the new forget_when()
     * function works as expected.
+    * Fixed a dumb bug in t/02-pod-coverage.t left from when I copied the file
+      from HTML::ParagraphSplit. Always make sure you check your files when you
+      copy them!
 
 0.06 Fri Oct 12 20:03:01 2007
     * Made brain_for() of Data::Remember::Hybrid a little more reliable.
