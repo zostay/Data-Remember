@@ -133,7 +133,7 @@ Called automagically when you C<use> this package. Do B<NOT> try
 
 This will keep import from being called, which will keep you from using any of the nice features of this package. Since it uses deep magic in the import process, attempting to call C<Data::Remember::remember()> and such won't work correctly. 
 
-If you can't import these three methods, sorry. Send me a bug report and a patch and I'll consider it.
+If you can't import these methods, sorry. Send me a bug report and a patch and I'll consider it.
 
 The C<$brain> argument lets you select a brain plugin to use. The brain plugins available with this distribution currently include:
 
@@ -154,6 +154,10 @@ A brain that stores everything via L<YAML>. This is great for storing configurat
 =item L<Data::Remember::Hybrid>
 
 A brain that doesn't store anything, but lets you use mix storage mechanisms.
+
+=ite L<Data::Remember::POE>
+
+Automagically use a brain that is stored in the L<POE::Session> heap.
 
 =back
 
