@@ -155,7 +155,7 @@ A brain that stores everything via L<YAML>. This is great for storing configurat
 
 A brain that doesn't store anything, but lets you use mix storage mechanisms.
 
-=ite L<Data::Remember::POE>
+=item L<Data::Remember::POE>
 
 Automagically use a brain that is stored in the L<POE::Session> heap.
 
