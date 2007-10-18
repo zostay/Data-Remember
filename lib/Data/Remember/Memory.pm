@@ -5,6 +5,8 @@ package Data::Remember::Memory;
 
 our $VERSION = '0.000001';
 
+use Scalar::Util qw/ reftype /;
+
 =head1 NAME
 
 Data::Remember::Memory - a short-term memory brain plugin for Data::Remember
@@ -44,15 +46,29 @@ sub remember {
     my $fact = shift;
 
     my $last_que = pop @$que;
+    my $que_remaining = scalar @$que;
 
     my $object = $self->{brain};
     for my $que_entry (@$que) {
         if (defined $object->{$que_entry}) {
-            $object = $object->{$que_entry};
+
+            if ($que_remaining == 0 
+                    or (ref $object->{$que_entry} 
+                        and reftype $object->{$que_entry} eq 'HASH')) {
+                $object = $object->{$que_entry};
+            }
+            
+            # overwrite previous non-hash fact with something more agreeable
+            else {
+                $object = $object->{$que_entry} = {}
+            }
         }
+
         else {
             $object = $object->{$que_entry} = {};
         }
+
+        $que_remaining--;
     }
 
     $object->{$last_que} = $fact;
@@ -70,9 +86,12 @@ sub recall {
 
     my $object = $self->{brain};
     for my $que_entry (@$que) {
+        return unless ref $object and reftype $object eq 'HASH';
+
         if (defined $object->{$que_entry}) {
             $object = $object->{$que_entry};
         }
+
         else {
             return;
         }
