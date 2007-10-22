@@ -252,6 +252,11 @@ sub remember {
         my $que  = shift;
         my $fact = shift;
 
+        unless (defined $que) {
+            carp "Undefined que used in call to remember().";
+            return;
+        }
+
         my $clean_que = _process_que($que);;
 
         $brain->remember($clean_que, $fact);
@@ -278,6 +283,11 @@ sub remember_these {
     sub ($$) {
         my $que  = shift;
         my $fact = shift;
+
+        unless (defined $que) {
+            carp "Undefined que used in call to remember_these().";
+            return;
+        }
 
         my $clean_que = _process_que($que);;
 
@@ -309,6 +319,11 @@ sub recall {
     sub ($) {
         my $que = shift;
 
+        unless (defined $que) {
+            carp "Undefined que used in call to recall().";
+            return;
+        }
+
         my $clean_que = _process_que($que);
 
         return scalar $brain->recall($clean_que);
@@ -333,6 +348,11 @@ sub recall_and_update {
     sub (&$) {
         my $code = shift;
         my $que  = shift;
+
+        unless (defined $que) {
+            carp "Undefined que used in call to recall_and_update().";
+            return;
+        }
 
         my $clean_que = _process_que($que);
 
@@ -360,6 +380,11 @@ sub forget {
     sub ($) {
         my $que = shift;
 
+        unless (defined $que) {
+            carp "Undefined que used in call to forget().";
+            return;
+        }
+
         my $clean_que = _process_que($que);
 
         $brain->forget($clean_que);
@@ -386,6 +411,11 @@ sub forget_when {
     sub (&$) {
         my $code = shift;
         my $que = shift;
+
+        unless (defined $que) {
+            carp "Undefined que used in call to forget_when().";
+            return;
+        }
 
         my $clean_que = _process_que($que);
 
@@ -449,6 +479,46 @@ The C<forget> method will be passed a normalized reference to a que array, which
 To build a brain, I highly recommend extending L<Data::Remember::Memory>, which performs (or should perform) all the work of safely storing and fetching records from a Perl data structure according to the interface described here. It stores everything under C<< $self->{brain} >>. At the very least, you should read through that code before building your brain.
 
 The L<Data::Remember::DBM> or other included brains may also be a good place to look. They extend L<Data::Remember::Memory> so that I didn't have to repeat myself.
+
+=head1 DIAGNOSTICS
+
+This class emits the following warnings:
+
+=over
+
+=item The brain BRAIN may not have loaded correctly: ERROR
+
+This message indicates that an error occurred while loading the package named C<BRAIN>. C<ERROR> contains the nested error message. This is only a warning because it's possible that this failure is normal (e.g., if the package is not defined in it's own Perl module).
+
+=item Undefined que used in call to SUB.
+
+This message indicates that you attempted to pass an undefined value as the que to the named subroutine. Such calls are ignored by L<Data::Remember>. (Hence the warning.) 
+
+=back
+
+Whenever possible, this library attempts not to throw exceptions. The major exception that rule (HAH!) is during initialization. Any problems detected there are generally very important, so exceptions are thrown liberally.
+
+Here are the exceptions that are emitted by this class:
+
+=over
+
+=item This does not look like a valid brain: BRAIN
+
+The brain plugin name given does not look like a valid Perl class name. L<Data::Remember> won't even check to see if it is a brain plugin unless it could be a package name.
+
+=item Your brain cannot remember facts: BRAIN
+
+You attempted to use a brain class that does not provide a C<remember()> method.
+
+=item Your brain cannot recall facts: BRAIN
+
+You attempted to use a brain class that does not provide a C<recall()> method.
+
+=item Your brain cannot forget facts: BRAIN
+
+You attempted to use a brain class that does not provide a C<forget()> method.
+
+=back
 
 =head1 SEE ALSO
 
