@@ -236,6 +236,10 @@ sub _process_que {
         @ques = ($que);
     }
 
+    for my $que (@ques) {
+        return undef unless defined $que;
+    }
+
     return \@ques;
 }
 
@@ -252,12 +256,12 @@ sub remember {
         my $que  = shift;
         my $fact = shift;
 
-        unless (defined $que) {
-            carp "Undefined que used in call to remember().";
+        my $clean_que = _process_que($que);;
+
+        unless (defined $clean_que) {
+            carp "Undefined que element found in call to remember().";
             return;
         }
-
-        my $clean_que = _process_que($que);;
 
         $brain->remember($clean_que, $fact);
 
@@ -284,12 +288,12 @@ sub remember_these {
         my $que  = shift;
         my $fact = shift;
 
-        unless (defined $que) {
-            carp "Undefined que used in call to remember_these().";
+        my $clean_que = _process_que($que);;
+
+        unless (defined $clean_que) {
+            carp "Undefined que element found in call to remember_these().";
             return;
         }
-
-        my $clean_que = _process_que($que);;
 
         my $fact_list = $brain->recall($clean_que);
 
@@ -319,12 +323,12 @@ sub recall {
     sub ($) {
         my $que = shift;
 
-        unless (defined $que) {
-            carp "Undefined que used in call to recall().";
+        my $clean_que = _process_que($que);
+
+        unless (defined $clean_que) {
+            carp "Undefined que element used in call to recall().";
             return;
         }
-
-        my $clean_que = _process_que($que);
 
         return scalar $brain->recall($clean_que);
     };
@@ -349,12 +353,12 @@ sub recall_and_update {
         my $code = shift;
         my $que  = shift;
 
-        unless (defined $que) {
-            carp "Undefined que used in call to recall_and_update().";
+        my $clean_que = _process_que($que);
+
+        unless (defined $clean_que) {
+            carp "Undefined que element used in call to recall_and_update().";
             return;
         }
-
-        my $clean_que = _process_que($que);
 
         # Recall and modify $_
         local $_ = $brain->recall($clean_que);
@@ -380,12 +384,12 @@ sub forget {
     sub ($) {
         my $que = shift;
 
-        unless (defined $que) {
-            carp "Undefined que used in call to forget().";
+        my $clean_que = _process_que($que);
+
+        unless (defined $clean_que) {
+            carp "Undefined que element used in call to forget().";
             return;
         }
-
-        my $clean_que = _process_que($que);
 
         $brain->forget($clean_que);
 
@@ -412,12 +416,12 @@ sub forget_when {
         my $code = shift;
         my $que = shift;
 
-        unless (defined $que) {
-            carp "Undefined que used in call to forget_when().";
+        my $clean_que = _process_que($que);
+
+        unless (defined $clean_que) {
+            carp "Undefined que element used in call to forget_when().";
             return;
         }
-
-        my $clean_que = _process_que($que);
 
         my $fact = $brain->recall($clean_que);
 
@@ -490,9 +494,9 @@ This class emits the following warnings:
 
 This message indicates that an error occurred while loading the package named C<BRAIN>. C<ERROR> contains the nested error message. This is only a warning because it's possible that this failure is normal (e.g., if the package is not defined in it's own Perl module).
 
-=item Undefined que used in call to SUB.
+=item Undefined que element used in call to SUB.
 
-This message indicates that you attempted to pass an undefined value as the que to the named subroutine. Such calls are ignored by L<Data::Remember>. (Hence the warning.) 
+This message indicates that you attempted to pass an undefined value as a component of the que to the named subroutine. Such calls are ignored by L<Data::Remember>. (Hence the warning.) 
 
 =back
 
