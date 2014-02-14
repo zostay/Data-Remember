@@ -9,7 +9,7 @@ all_from 'lib/Data/Remember.pm';
 
 requires 'DBM::Deep';
 requires 'POE';
-requires 'UNIVERSAL::require';
+requires 'Class::Load';
 requires 'YAML::Syck';
 
 auto_install;

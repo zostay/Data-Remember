@@ -7,7 +7,7 @@ our $VERSION = '0.07';
 
 use Carp;
 use Scalar::Util qw/ reftype /;
-use UNIVERSAL::require;
+use Class::Load ();
 
 =head1 NAME
 
@@ -186,7 +186,7 @@ sub _init_brain {
     $brain =~ /^[\w:]+$/ 
         or croak qq{This does not look like a valid brain: $brain};
 
-    $brain->require
+    Class::Load::load_class($brain)
         or carp qq{The brain $brain may not have loaded correctly: $@};
 
     my $gray_matter = $brain->new(@_);
