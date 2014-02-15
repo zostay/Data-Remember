@@ -2,10 +2,7 @@ use strict;
 use warnings;
 
 package Data::Remember::POE;
-
-=head1 NAME
-
-Data::Remember::POE  a brain for Data::Remember linked to the session heap
+# ABSTRACT: a brain for Data::Remember linked to the POE session heap
 
 =head1 SYNOPSIS
 

@@ -1,0 +1,18 @@
+# Data-Remember
+
+Helps you remember complex information without giving yourself a headache. The
+goal is to provide a way to store structured facts without having to spend a lot
+of time worrying how the data is stored. This is basically a simplistic
+key-value store/NoSQL database interface. It's aimed at tools like bots that
+often need to record data like when a user was last seen or how many karma
+points a subject has earned, etc. These small simple facts tend to be just
+complex enough that a straight hash is painful, but too simple that a full blown
+MongoDB install is total overkill.
+
+The preferred installation method is from CPAN:
+
+    cpanm Data::Remember
+
+Or if you want to hack the code, feel free to fork and build it from here.
+
+Cheers.

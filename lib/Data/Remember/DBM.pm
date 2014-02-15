@@ -3,13 +3,10 @@ use warnings;
 
 package Data::Remember::DBM;
 use base qw/ Data::Remember::Memory /;
+# ABSTRACT: a long-term memory brain plugin for Data::Remember
 
 use Carp;
 use DBM::Deep;
-
-=head1 NAME
-
-Data::Remember::DBM - a long-term memory brain plugin for Data::Remember
 
 =head1 SYNOPSIS
 

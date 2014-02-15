@@ -2,16 +2,11 @@ use strict;
 use warnings;
 
 package Data::Remember;
-
-our $VERSION = '0.07';
+# ABSTRACT: remember complex information without giving yourself a headache
 
 use Carp;
 use Scalar::Util qw/ reftype /;
 use Class::Load ();
-
-=head1 NAME
-
-Data::Remember - remember complex information without giving yourself a headache
 
 =head1 SYNOPSIS
 

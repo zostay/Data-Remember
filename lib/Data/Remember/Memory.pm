@@ -2,14 +2,9 @@ use strict;
 use warnings;
 
 package Data::Remember::Memory;
-
-our $VERSION = '0.000001';
+# ABSTRACT: a short-term memory brain plugin for Data::Remember
 
 use Scalar::Util qw/ reftype /;
-
-=head1 NAME
-
-Data::Remember::Memory - a short-term memory brain plugin for Data::Remember
 
 =head1 SYNOPSIS
 

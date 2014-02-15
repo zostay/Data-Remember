@@ -2,12 +2,9 @@ use strict;
 use warnings;
 
 package Data::Remember::Hybrid;
+# ABSTRACT: a brain for Data::Remember with multiple personalities
 
 use Carp;
-
-=head1 NAME
-
-Data::Remember::Hybrid - a brain for Data::Remember with multiple personalities
 
 =head1 SYNOPSIS
 

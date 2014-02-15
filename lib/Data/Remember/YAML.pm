@@ -3,15 +3,10 @@ use warnings;
 
 package Data::Remember::YAML;
 use base qw/ Data::Remember::Memory /;
-
-our $VERSION = '0.000001';
+# ABSTRACT: a frozen memory brain plugin for Data::Remember
 
 use Carp;
 use YAML::Syck ();
-
-=head1 NAME
-
-Data::Remember::YAML - a frozen memory brain plugin for Data::Remember
 
 =head1 SYNOPSIS
 

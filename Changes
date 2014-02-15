@@ -1,6 +1,7 @@
 Revision history for Perl module Data::Remember
 
-0.08
+{{$NEXT}}
+
     * Added t/03-memory-overwrite.t test to make sure remember() and recall()
       work correctly when encountering non-hash values when traversing a que.
     * Modified Data::Remember so that the tests pass.
