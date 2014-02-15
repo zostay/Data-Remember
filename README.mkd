@@ -2,12 +2,26 @@
 
 Helps you remember complex information without giving yourself a headache. The
 goal is to provide a way to store structured facts without having to spend a lot
-of time worrying how the data is stored. This is basically a simplistic
-key-value store/NoSQL database interface. It's aimed at tools like bots that
-often need to record data like when a user was last seen or how many karma
-points a subject has earned, etc. These small simple facts tend to be just
-complex enough that a straight hash is painful, but too simple that a full blown
-MongoDB install is total overkill.
+of time worrying how the data is stored. This is basically a simple-minded
+key-value store/NoSQL database interface. 
+
+It is aimed at tools like bots that often need to record data like when a user
+was last seen or how many karma points a subject has earned, etc. These small
+simple facts tend to be just complex enough that a straight hash can give you
+migraines, but too simple that a full blown MongoDB install is over-thinking the
+solution.
+
+This also presents a few simple ways to store information, called brains:
+
+ * DBM::Deep - The DBM brain uses the DBM::Deep module, which is a hierarchical
+   key-value/NoSQL storage engine built on an old style DBM format.
+ * YAML - This will let you load andd store facts using a YAML file, such as
+   might be useful for configuration data.
+ * Memory - This stores in memory for the duration of the process.
+ * Hybrid - Allows you to use other engines in combination by letting certain
+   parent keys be marked as belonging to a given brain.
+ * POE - This can be used in combination with POE to store the brain information
+   in the POE heap.
 
 The preferred installation method is from CPAN:
 
