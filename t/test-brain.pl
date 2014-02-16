@@ -1,11 +1,13 @@
 use strict;
 use warnings;
 
-plan tests => 44;
+plan tests => 42;
 
-can_ok('main', 'remember');
-can_ok('main', 'recall');
-can_ok('main', 'forget');
+can_ok('main', qw( 
+    remember remember_these 
+    recall recall_and_update 
+    forget forget_when 
+));
 
 remember foo => 1;
 remember bar => 2;
