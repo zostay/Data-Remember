@@ -523,16 +523,6 @@ You attempted to use a brain class that does not provide a C<forget()> method.
 
 L<Data::Remember::Memory>, L<Data::Remember::DBM>, L<Data::Remember::YAML>, L<Data::Remember::Hybrid>
 
-=head1 AUTHOR
-
-Andrew Sterling Hanenkamp C<< <hanenkamp@cpan.org> >>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright 2007 Boomer Consulting, Inc. All Rights Reserved.
-
-This program is free software and may be modified and distributed under the same terms as Perl itself.
-
 =cut
 
 1;
