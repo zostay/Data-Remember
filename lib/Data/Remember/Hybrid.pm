@@ -5,6 +5,9 @@ package Data::Remember::Hybrid;
 # ABSTRACT: a brain for Data::Remember with multiple personalities
 
 use Carp;
+use Data::Remember::Util 
+    process_que => { -as => '_process_que' },
+    init_brain  => { -as => '_init_brain' };
 
 =head1 SYNOPSIS
 
@@ -74,11 +77,11 @@ sub register_brain {
     croak "You must give a que." unless defined $que;
     croak "You must give a configuration." unless defined $config;
 
-    $que    = Data::Remember::Class::_process_que($que);
+    $que    = _process_que($que);
     $config = [ $config ] unless ref $config;
 
     if (scalar(@$que) == 0) {
-        $self->{root} = Data::Remember::Class::_init_brain(@$config);
+        $self->{root} = _init_brain(@$config);
     }
 
     else {
@@ -96,7 +99,7 @@ sub register_brain {
             }
         }
 
-        $object->{__BRAIN} = Data::Remember::Class::_init_brain(@$config);
+        $object->{__BRAIN} = _init_brain(@$config);
     }
 }
 
@@ -112,7 +115,7 @@ sub unregister_brain {
 
     croak "You must give a que." unless defined $que;
 
-    $que = Data::Remember::Class::_process_que($que);
+    $que = _process_que($que);
 
     if (scalar(@$que) == 0) {
         croak 'You cannot unregister the root. You may, however, replace it '

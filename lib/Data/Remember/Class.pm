@@ -7,6 +7,9 @@ use warnings;
 use Carp;
 use Scalar::Util qw( reftype );
 use Class::Load ();
+use Data::Remember::Util 
+    process_que => { -as => '_process_que' },
+    init_brain  => { -as => '_init_brain' };
 
 =head1 SYNOPSIS
 
@@ -186,56 +189,6 @@ sub new {
     my $gray_matter = _init_brain($brain, @_);
 
     return bless { brain => $gray_matter }, $class;
-}
-
-sub _init_brain {
-    my $brain = shift;
-
-    $brain = 'Data::Remember::' . $brain
-        unless $brain =~ /::/;
-
-    $brain =~ /^[\w:]+$/ 
-        or croak qq{This does not look like a valid brain: $brain};
-
-    Class::Load::load_class($brain)
-        or carp qq{The brain $brain may not have loaded correctly: $@};
-
-    my $gray_matter = $brain->new(@_);
-
-    # Duck typing!
-    $gray_matter->can('remember')
-        or croak qq{Your brain cannot remember facts: $brain};
-    $gray_matter->can('recall')
-        or croak qq{Your brain cannot recall facts: $brain};
-    $gray_matter->can('forget')
-        or croak qq{Your brain cannot forget facts: $brain};
-
-    return $gray_matter;
-}
-
-sub _process_que {
-    my $que = shift;
-
-    my @ques;
-    if (ref $que eq 'ARRAY') {
-        @ques = @$que;
-    }
-
-    elsif (ref $que eq 'HASH') {
-        for my $key (sort keys %$que) {
-            push @ques, $key, $que->{$key};
-        }
-    }
-
-    else {
-        @ques = ($que);
-    }
-
-    for my $que (@ques) {
-        return undef unless defined $que;
-    }
-
-    return \@ques;
 }
 
 =head2 remember

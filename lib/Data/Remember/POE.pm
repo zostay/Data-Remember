@@ -4,6 +4,9 @@ use warnings;
 package Data::Remember::POE;
 # ABSTRACT: a brain for Data::Remember linked to the POE session heap
 
+use Data::Remember::Util 
+    init_brain  => { -as => '_init_brain' };
+
 =head1 SYNOPSIS
 
   # An absurd POE programming demonstrating how Data::Remember::POE works
@@ -87,7 +90,7 @@ sub new_heap {
 
     my @config = scalar(@_) ? @_ : @{ $self->{config} };
 
-    return Data::Remember::Class::_init_brain(@config);
+    return _init_brain(@config);
 }
 
 =head2 remember QUE, FACT
