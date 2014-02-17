@@ -2,13 +2,21 @@ Revision history for Perl module Data::Remember
 
 {{$NEXT}}
 
-    * Added t/03-memory-overwrite.t test to make sure remember() and recall()
+    * Added Data::Remember::Class to provide an object-oriented interface to
+      the Data::Remember library. Actually, Data::Remember is now a functional
+      wrapper around Data::Remember::Class.
+    * Extracted teh init_brain, and process_que utility methods that are shared
+      by Data::Remember::Class, Data::Remember::POE, and Data::Remember::Hybrid
+      into a common Data::Remember::Util.
+    * Switched to Class::Load from UNIVERSAL::require.
+    * Added t/05-memory-overwrite.t test to make sure remember() and recall()
       work correctly when encountering non-hash values when traversing a que.
     * Modified Data::Remember so that the tests pass.
     * An undefined que now results in the request to remember(), recall(),
       forget(), etc. being ignored and a warning shown.
     * Added a DIAGNOSTICS section to Data::Remember to highlight the important
       messages of the main class.
+    * Migrated to Dist::Zilla for managing releng. Added github README.
 
 0.07 Sun Oct 14 0:38:17 2007
     * Added the forget_when() function for forgetting parts of a fact based upon
