@@ -2,6 +2,8 @@ Revision history for Perl module Data::Remember
 
 {{$NEXT}}
 
+0.140480  2014-02-16 19:32:58 America/Chicago
+
     * Added Data::Remember::Class to provide an object-oriented interface to
       the Data::Remember library. Actually, Data::Remember is now a functional
       wrapper around Data::Remember::Class.
