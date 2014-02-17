@@ -7,6 +7,7 @@ package Data::Remember;
 use Carp;
 use Scalar::Util qw/ reftype /;
 use Class::Load ();
+use Data::Remember::Class;
 
 =head1 SYNOPSIS
 
@@ -36,89 +37,13 @@ use Class::Load ();
 
 =head1 DESCRIPTION
 
-While designing some IRC bots and such I got really tired of statements that looked like:
+This is the original interface, but the preferred implementation is now L<Data::Remember::Class>. This is now just a functional wrapper around that interface.
 
-  $heap->{job}{$job} = {
-      source  => $source,
-      dest    => $destination,
-      options => $options,
-  };
-
-and later:
-
-  if ($heap->{job}{$job}{options}{wibble} eq $something_else) {
-      # do something...
-  }
-
-I could simplify things with intermediate variables, but then I inevitably end up with 4 or 5 lines of init at the start or middle of each subroutine. Yech.
-
-So, I decided that it would be nice to simplify the above to:
-
-  remember [ job => $job ], {
-      source  => $source,
-      dest    => $destination,
-      options => $options,
-  };
-
-and later:
-
-  if (recall [ job => $job, options => 'wibble' ] eq $something_else) {
-      # do something...
-  }
-
-Which I consider to far more readable.
-
-The second aspect that this deals with is long-term storage. I started using L<DBM::Deep> to remember the important bits of state across bot restarts. This package will store your information persistently for you too if you want:
-
-  use Data::Remember DBM => 'state.db';
-
-By using that command, the L<Data::Remember::DBM> "brain" is used instead of the usual L<Data::Remember::Memory> brain, which just stores things in a Perl data structure.
+See L<Data::Remember::Class> for more documentaiton.
 
 =head1 SUBROUTINES
 
 By using this module you will automatically import (I know, how rude) four subroutines into the calling package: L</remember>, L</remember_these>, L</recall>, L</recall_and_update>, L</forget>, L<forget_when>, and L</brain>.
-
-=head2 QUE
-
-Each take a C<$que> argument. The que is a memory que to store the information with. This que may be a scalar, an array, or a hash, depending on what suits your needs. However, you will want to be aware of how these are translated into memory locations in the brain plugin.
-
-Any que argument is passed to the brain as an array. A scalar que is just wrapped in an array reference:
-
-  remember foo => 1;
-
-is the same as:
-
-  remember [ 'foo' ] => 1;
-
-An array que is passed exactly as it is to the brain plugin.
-
-A hash que is converted to an array by sorting the keys in lexicographic order and keeping the pairs together. For example:
-
-  remember { foo => 3, bar => 2, baz => 1 } => 'xyz';
-
-is the same as:
-
-  remember [ bar => 2, baz => 1, foo => 3 ] => 'xyz';
-
-Once the array is built the brains are required to treat these in the same way as hash keys for a hash of hashes. For example, you can think of:
-
-  remember [ foo => 3, bar => 2, baz => 1 ] => 'xyz';
-
-as being similar to storing:
-
-  $memory->{foo}{3}{bar}{2}{baz}{1} = 'xyz';
-
-This means that you could later recall a subset of the previous key:
-
-  my $bar = recall [ foo => 3, 'bar' ];
-
-which would return a hash reference similar to:
-
-  my $bar = { 2 => { baz => { 1 => 'xyz' } } };
-
-(assuming you hadn't stored anything else under C<< [ foo => 3, 'bar' ] >>).
-
-Clear as mud? Good!
 
 =head2 import $brain, @options;
 
@@ -134,25 +59,25 @@ The C<$brain> argument lets you select a brain plugin to use. The brain plugins 
 
 =over
 
-=item L<Data::Remember::Memory>
+=item *
 
-A brain that stores everything in plain Perl data structures. Data in this brain is not persistent.
+L<Data::Remember::Memory>
 
-=item L<Data::Remember::DBM>
+=item *
 
-A brain that stores everything via L<DBM::Deep>. Data stored here will be persistent. This brain also requires additional arguments (see the module documentation for details).
+L<Data::Remember::DBM>
 
-=item L<Data::Remember::YAML>
+=item *
 
-A brain that stores everything via L<YAML>. This is great for storing configuration data.
+L<Data::Remember::YAML>
 
-=item L<Data::Remember::Hybrid>
+=item *
 
-A brain that doesn't store anything, but lets you use mix storage mechanisms.
+L<Data::Remember::Hybrid>
 
-=item L<Data::Remember::POE>
+=item *
 
-Automagically use a brain that is stored in the L<POE::Session> heap.
+L<Data::Remember::POE>
 
 =back
 
@@ -168,33 +93,8 @@ sub import {
 
     my $caller = caller;
 
-    my $gray_matter = _init_brain($brain, @_);
+    my $gray_matter = Data::Remember::Class->new($brain, @_);
     $class->_import_brain( $gray_matter => $caller );
-}
-
-sub _init_brain {
-    my $brain = shift;
-
-    $brain = 'Data::Remember::' . $brain
-        unless $brain =~ /::/;
-
-    $brain =~ /^[\w:]+$/ 
-        or croak qq{This does not look like a valid brain: $brain};
-
-    Class::Load::load_class($brain)
-        or carp qq{The brain $brain may not have loaded correctly: $@};
-
-    my $gray_matter = $brain->new(@_);
-
-    # Duck typing!
-    $gray_matter->can('remember')
-        or croak qq{Your brain cannot remember facts: $brain};
-    $gray_matter->can('recall')
-        or croak qq{Your brain cannot recall facts: $brain};
-    $gray_matter->can('forget')
-        or croak qq{Your brain cannot forget facts: $brain};
-
-    return $gray_matter;
 }
 
 sub _import_brain {
@@ -213,31 +113,6 @@ sub _import_brain {
     *{"$package\::brain"}             = brain($brain);
 }
 
-sub _process_que {
-    my $que = shift;
-
-    my @ques;
-    if (ref $que eq 'ARRAY') {
-        @ques = @$que;
-    }
-
-    elsif (ref $que eq 'HASH') {
-        for my $key (sort keys %$que) {
-            push @ques, $key, $que->{$key};
-        }
-    }
-
-    else {
-        @ques = ($que);
-    }
-
-    for my $que (@ques) {
-        return undef unless defined $que;
-    }
-
-    return \@ques;
-}
-
 =head2 remember $que, $fact
 
 Remember the given C<$fact> at memory que C<$que>. See L</QUE> for an in depth discussion of C<$que>. The C<$fact> can be anything your brain can store. This will generally include, at least, scalars, hash references, and array references.
@@ -251,15 +126,7 @@ sub remember {
         my $que  = shift;
         my $fact = shift;
 
-        my $clean_que = _process_que($que);;
-
-        unless (defined $clean_que) {
-            carp "Undefined que element found in call to remember().";
-            return;
-        }
-
-        $brain->remember($clean_que, $fact);
-
+        $brain->remember($que, $fact);
         return;
     };
 }
@@ -283,23 +150,7 @@ sub remember_these {
         my $que  = shift;
         my $fact = shift;
 
-        my $clean_que = _process_que($que);;
-
-        unless (defined $clean_que) {
-            carp "Undefined que element found in call to remember_these().";
-            return;
-        }
-
-        my $fact_list = $brain->recall($clean_que);
-
-        if (defined reftype $fact_list and reftype $fact_list eq 'ARRAY') {
-            push @$fact_list, $fact;
-        }
-
-        else {
-            $brain->remember($clean_que, [ $fact ]);
-        }
-
+        $brain->remember_these($que, $fact);
         return;
     };
 }
@@ -318,14 +169,7 @@ sub recall {
     sub ($) {
         my $que = shift;
 
-        my $clean_que = _process_que($que);
-
-        unless (defined $clean_que) {
-            carp "Undefined que element used in call to recall().";
-            return;
-        }
-
-        return scalar $brain->recall($clean_que);
+        return scalar $brain->recall($que);
     };
 }
 
@@ -348,22 +192,7 @@ sub recall_and_update {
         my $code = shift;
         my $que  = shift;
 
-        my $clean_que = _process_que($que);
-
-        unless (defined $clean_que) {
-            carp "Undefined que element used in call to recall_and_update().";
-            return;
-        }
-
-        # Recall and modify $_
-        local $_ = $brain->recall($clean_que);
-        my $result = $code->();
-
-        # Store that value back
-        $brain->remember($clean_que, $_);
-
-        # Return the result
-        return $result;
+        return scalar $brain->recall_and_update($code, $que);
     };
 }
 
@@ -379,15 +208,7 @@ sub forget {
     sub ($) {
         my $que = shift;
 
-        my $clean_que = _process_que($que);
-
-        unless (defined $clean_que) {
-            carp "Undefined que element used in call to forget().";
-            return;
-        }
-
-        $brain->forget($clean_que);
-
+        $brain->forget($que);
         return;
     };
 }
@@ -411,35 +232,7 @@ sub forget_when {
         my $code = shift;
         my $que = shift;
 
-        my $clean_que = _process_que($que);
-
-        unless (defined $clean_que) {
-            carp "Undefined que element used in call to forget_when().";
-            return;
-        }
-
-        my $fact = $brain->recall($clean_que);
-
-        if (ref $fact and reftype $fact eq 'HASH') {
-            for my $key (keys %$fact) {
-                my $value = $fact->{ $key };
-                local $_ = $value;
-                delete $fact->{ $key } if $code->($key, $value);
-            }
-        }
-
-        elsif (ref $fact and reftype $fact eq 'ARRAY') {
-            my $index = 0;
-            my @new_fact
-                = grep { my $value = $_; not $code->($index++, $value) } @$fact;
-            $brain->remember($clean_que, \@new_fact);
-        }
-
-        else {
-            local $_ = $fact;
-            $brain->forget($clean_que) if $code->(undef, $fact);
-        }
-
+        $brain->forget_when($code, $que);
         return;
     };
 }
@@ -460,7 +253,7 @@ Returns the inner object used to store data. This can be used in case the brain 
 sub brain {
     my $brain = shift;
 
-    sub () { return $brain };
+    sub () { return $brain->brain };
 }
 
 =head1 CREATING A BRAIN

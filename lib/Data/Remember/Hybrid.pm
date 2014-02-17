@@ -74,11 +74,11 @@ sub register_brain {
     croak "You must give a que." unless defined $que;
     croak "You must give a configuration." unless defined $config;
 
-    $que    = Data::Remember::_process_que($que);
+    $que    = Data::Remember::Class::_process_que($que);
     $config = [ $config ] unless ref $config;
 
     if (scalar(@$que) == 0) {
-        $self->{root} = Data::Remember::_init_brain(@$config);
+        $self->{root} = Data::Remember::Class::_init_brain(@$config);
     }
 
     else {
@@ -96,7 +96,7 @@ sub register_brain {
             }
         }
 
-        $object->{__BRAIN} = Data::Remember::_init_brain(@$config);
+        $object->{__BRAIN} = Data::Remember::Class::_init_brain(@$config);
     }
 }
 
@@ -112,7 +112,7 @@ sub unregister_brain {
 
     croak "You must give a que." unless defined $que;
 
-    $que = Data::Remember::_process_que($que);
+    $que = Data::Remember::Class::_process_que($que);
 
     if (scalar(@$que) == 0) {
         croak 'You cannot unregister the root. You may, however, replace it '
@@ -146,7 +146,7 @@ sub brain_for {
     my $self = shift;
     my $que  = shift;
 
-    $que = Data::Remember::_process_que($que);
+    $que = Data::Remember::Class::_process_que($que);
     push @$que, 'X';
 
     my ($best_brain) = $self->_best_brain($que);

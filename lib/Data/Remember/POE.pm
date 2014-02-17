@@ -87,7 +87,7 @@ sub new_heap {
 
     my @config = scalar(@_) ? @_ : @{ $self->{config} };
 
-    return Data::Remember::_init_brain(@config);
+    return Data::Remember::Class::_init_brain(@config);
 }
 
 =head2 remember QUE, FACT
