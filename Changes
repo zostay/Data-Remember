@@ -2,6 +2,11 @@ Revision history for Perl module Data::Remember
 
 {{$NEXT}}
 
+    * Added the recall_each() method to Data::Remember::Class.
+    * Added the recall_each() subroutine to Data::Remember.
+    * Updated the documentation for QUE to describe the useful empty que: []
+    * Fixed a couple broken links in the docs.
+
 0.140480  2014-02-16 19:32:58 America/Chicago
 
     * Added Data::Remember::Class to provide an object-oriented interface to
