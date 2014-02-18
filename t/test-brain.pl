@@ -1,11 +1,11 @@
 use strict;
 use warnings;
 
-plan tests => 42;
+plan tests => 46;
 
 can_ok('main', qw( 
     remember remember_these 
-    recall recall_and_update 
+    recall recall_each recall_and_update 
     forget forget_when 
 ));
 
@@ -21,6 +21,27 @@ is(recall 'foo', 1, 'recalled foo is 1');
 is(recall 'bar', 2, 'recalled bar is 2');
 is(recall 'baz', 3, 'recalled baz is 3');
 is_deeply([@{recall('qux')}], [ 4, 5, 6 ], 'recalled qux is [ 4, 5, 6 ]');
+
+is_deeply(recall [], {
+    foo => 1,
+    bar => 2,
+    baz => 3,
+    qux => [ 4, 5, 6 ],
+}, 'recalled all the top level keys');
+
+{
+    my $iter = recall_each [];
+    my %got;
+    while (my ($k, $v) = $iter->()) {
+        $got{$k} = $v;
+    }
+    is_deeply(\%got, {
+        foo => 1,
+        bar => 2,
+        baz => 3,
+        qux => [ 4, 5, 6 ],
+    }, 'recalled each got all top level keys by iterator');
+}
 
 my $bar = recall_and_update { $_++ } 'bar';
 is($bar, 2, 'recall_and_update returned 2');
@@ -52,6 +73,33 @@ remember [ foo => 1, bar => 2, baz => 3 ], {
 is(recall [ foo => 1, bar => 2, baz => 3, 'fantastic' ], 10, 'fantastic => 10');
 is(recall [ foo => 1, bar => 2, baz => 3, 'supreme' ], 9, 'supreme => 9');
 is(recall [ foo => 1, bar => 2, baz => 3, 'excellent' ], 8, 'excellent => 8');
+
+{
+    my $iter = recall_each [ foo => 1, 'bar' ];
+    my %got;
+    my $count = 0;
+    while (my ($k, $v) = $iter->()) {
+        $got{$k} = $v;
+        $count++;
+    }
+    is($count, 2, 'iterated over complex keys twice');
+    is_deeply(\%got, {
+        2 => {
+            baz => {
+                3 => {
+                    fantastic => 10,
+                    supreme   => 9,
+                    excellent => 8,
+                },
+            },
+        },
+        3 => {
+            baz => {
+                2 => 'excellent',
+            },
+        },
+    }, 'recalled each got all top level keys by iterator');
+}
 
 # Forget when hash using $_[0] and $_[1]
 {

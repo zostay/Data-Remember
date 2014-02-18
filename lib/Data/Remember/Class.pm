@@ -124,6 +124,10 @@ This is different from storing:
 
 The use of an anonymous array instead of an anonymous hash preserves the order of your choice.
 
+Finally, you can get access to the root of your brain's memory by using the empty que:
+
+  $store->remember([], { store => 1, all => 2, the => 3, things => 4 });
+
 Once the array is built the brains are required to treat these in the same way as hash keys for a hash of hashes. For example, you can think of:
 
   $store->remember([ foo => 3, bar => 2, baz => 1 ] => 'xyz');
@@ -275,6 +279,81 @@ sub recall {
     }
 
     return scalar $self->{brain}->recall($clean_que);
+}
+
+=head2 recall_each
+
+  my $iter = $store->recall_each($que);
+  while (my ($k, $v) = $iter->()) {
+      ...
+  }
+
+Given a que defined as a usual L</QUE>, this will return an iterator that will iterate over all the keys in a nested part of the store. The way the iterator works will depend on what kind of data C<$que> points to.
+
+=over
+
+=item *
+
+L<Hash.> For hashes, the iterator will work similar to the built-in C<each> operator. It will return each key/value pair found in the hash in no particular order.
+
+=item *
+
+L<Array.> For arrays, the iterator will return each index and value as a pair, in order.
+
+=item *
+
+L<Scalar.> For anything else, it will return a single pair. The first element in the pair will be C<undef> and the second will be the scalar value.
+
+=back
+
+When the iterator is finished it returns an empty list.
+
+The iterator captures the keys and array length at the time it was created. If changes are made to the data stored, it will return the same keys or array indexes that were stored at the moment of the call, but the values returned will be whatever is current stored. If the value at the que is removed entirely, the iterator closes over the original reference and will proceed anyway.
+
+=cut
+
+sub recall_each {
+    my ($self, $que) = @_;
+    my $brain = $self->{brain};
+
+    my $clean_que = _process_que($que);
+
+    unless (defined $clean_que) {
+        carp "Undefined que element used in call to recall_each().";
+        return;
+    }
+
+    my $value = $brain->recall($clean_que);
+
+    my $value_ref_type = reftype($value);
+    $value_ref_type = '' unless defined $value_ref_type;
+
+    if ($value_ref_type eq 'HASH') {
+        my @keys = keys %$value;
+        return sub {
+            return unless @keys;
+            my $k = shift @keys;
+            return ($k, $value->{$k});
+        };
+    }
+
+    elsif ($value_ref_type eq 'ARRAY') {
+        my @indexes = 0 .. $#$value;
+        return sub {
+            return unless @indexes;
+            my $i = shift @indexes;
+            return ($i, $value->[$i]);
+        };
+    }
+
+    else {
+        my @values = ($value);
+        return sub {
+            return unless @values;
+            my $v = shift @values;
+            return (undef, $v);
+        };
+    }
 }
 
 =head2 recall_and_update
